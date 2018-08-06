@@ -1,0 +1,29 @@
+language: node_js
+
+node_js:
+- '10'
+- '9'
+- '8'
+- '7'
+- '6'
+- '5'
+- '4'
+
+matrix:
+  fast_finish: true
+
+script:
+- npm run lint
+- npm run compile
+
+sudo: false
+
+deploy:
+  provider: npm
+  email: simon@simonemms.com
+  api_key:
+    secure: nz8At5YfJ9uszMY9jbCYGYjMtI6KxB/FFHYJj82mC4actD7U12gtoQROVoPRA3GB6hhGS21blBij90LyeEbQOuC+ngsasI6AdqRMj0BAM/BczLcY2Huq2Yr35l8/ArKCUKGaup0W66cXEjzsgX+PULYEFVX7gemRmYfWXhXqzpqgeK/4BZOvKqhNBacSiScfEaQo/QSjfhd0/Oby1Ps+TVtjShb3XUPePwuHyzJgHu4iWTeTw1I+FerfWeTeASCxFM7X8ArtE2CArMlyagRjwm25JTZu+BDhQdPI2cOG/wtbKrXvbHdE5KThnPtl4+qnXogQoWyfBa9ujMuGXAAIlBH8nBxRjHzQG5xvBDlWUlm+p+nuF2UKewEQrGbRhjgi4VHxqZrjVIZSDVMGM7Yr20SvYk8BzjXt5gNNOgPDYM2WdBgpYJR2nU7ck9ZDybg5ubZuB+oifd20oixdnP2X+8+pSyh5HrZC4sx/WuxjFLjhKxsWlRDy/7ggCyWn3vgK2dvoD/4dwZmniI5F1dds4+4iCVZkAFBm4qdSgNpPaaQltUKVBrllbSMy58zN3bz8duJlExUjVWde10/5IFw+echzBMcT2d/fSEt2S+CQh21idNMyuyXc1rCIxdDkENf1lN0r76au1wI8mLjEGz+HfOzbYuA33QMLtVRlFrUtZI4=
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: browserspy/common
