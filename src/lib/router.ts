@@ -5,7 +5,6 @@
  */
 
 /* Node modules */
-import path from 'path';
 
 /* Third-party modules */
 import express from 'express';
@@ -127,6 +126,15 @@ export default (parent: Express, dir: string) => {
           }
         });
     });
+
+  /* Add in a ping/pong route - can be overridden if a file specified */
+  routes.push({
+    method: 'GET',
+    url: '/ping',
+  });
+  app.get('/ping', (req: express.Request, res: express.Response) => {
+    res.send('pong');
+  });
 
   console.log('--- Routes ---');
   routes.forEach((route) => {
