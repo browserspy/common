@@ -7,6 +7,7 @@
 /* Node modules */
 
 /* Third-party modules */
+import bunyan from 'bunyan';
 import express from 'express';
 import { Express } from 'express-serve-static-core';
 import { sync as glob } from 'glob';
@@ -91,7 +92,7 @@ function parseController(
   };
 }
 
-export default (parent: Express, dir: string) => {
+export default (parent: Express, dir: string, logger: bunyan | undefined = undefined) => {
   const app : any = express();
 
   const routes : IController[] = [];
@@ -137,11 +138,15 @@ export default (parent: Express, dir: string) => {
     res.send('pong');
   });
 
-  console.log('--- Routes ---');
-  routes.forEach((route) => {
-    console.log(`${route.method.toUpperCase()}: ${route.url}`);
-  });
-  console.log('--------------');
+  if (!logger) {
+    console.log('--- Routes ---');
+    routes.forEach((route) => {
+      console.log(`${route.method.toUpperCase()}: ${route.url}`);
+    });
+    console.log('--------------');
+  } else {
+    logger.info('Routes', routes);
+  }
 
   parent.use(app);
 };
