@@ -18,7 +18,11 @@ const allowedLevels = [
   'fatal',
 ];
 
-export default (name: string, level: string | number) => {
+export {
+  bunyan,
+};
+
+export default (name: string, level: string | number) : bunyan => {
   if (typeof level === 'string' && !allowedLevels.includes(level)) {
     throw new Error(`Invalid log level: ${level}`);
   }
