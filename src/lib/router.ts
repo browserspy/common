@@ -74,6 +74,7 @@ function parseController(
 
     /* Deletes an item */
     case 'delete':
+    case 'del':
       method = 'delete';
       url += '/:id';
       break;
