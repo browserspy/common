@@ -95,6 +95,8 @@ function parseController(
 export default (parent: Express, dir: string, logger: bunyan | undefined = undefined) => {
   const app : any = express();
 
+  app.set('x-powered-by', null);
+
   const routes : IController[] = [];
 
   glob(`${dir}/**/*.*`)
