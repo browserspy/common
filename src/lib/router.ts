@@ -19,6 +19,34 @@ interface IController {
   url: string;
 }
 
+/**
+ * Error Handler
+ *
+ * Converts a promise error for handling by the
+ * express uncaught exception
+ *
+ * @param {express.RequestHandler | express.RequestHandler[]} handlers
+ * @returns {express.RequestHandler[]}
+ */
+function errorHandler(
+  handlers : express.RequestHandler | express.RequestHandler[],
+) : express.RequestHandler[] {
+
+  const fn : express.RequestHandler[] = Array.isArray(handlers) ? handlers : [handlers];
+
+  return fn.map(item => async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      await item(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  });
+}
+
 function middlewareParser(
   handler: express.RequestHandler[],
   middleware: express.RequestHandler | express.RequestHandler[],
@@ -120,9 +148,9 @@ export default (parent: Express, dir: string, logger: bunyan | undefined = undef
           );
 
           if (obj) {
-            if (controller.before) { middlewareParser(handler, controller.before); }
-            handler.push(controller[key]);
-            if (controller.after) { middlewareParser(handler, controller.after); }
+            if (controller.before) { middlewareParser(handler, errorHandler(controller.before)); }
+            handler.push(...errorHandler(controller[key]));
+            if (controller.after) { middlewareParser(handler, errorHandler(controller.after)); }
 
             routes.push(obj);
 
