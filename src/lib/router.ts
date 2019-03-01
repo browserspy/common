@@ -136,6 +136,30 @@ export default (parent: Express, dir: string, logger: bunyan | undefined = undef
         .replace(/\..+$/, '')
         .replace(/\/index$/, '');
 
+      const { endpoints } = controller;
+
+      if (Array.isArray(endpoints)) {
+        endpoints.forEach((endpoint) => {
+          const handler: express.RequestHandler[] = [];
+
+          if (controller.before) { middlewareParser(handler, errorHandler(controller.before)); }
+          handler.push(...errorHandler(endpoint.handler));
+          if (controller.after) { middlewareParser(handler, errorHandler(controller.after)); }
+
+          const method = endpoint.method.toLowerCase();
+          const url = `/${name}${endpoint.url}`;
+
+          routes.push({
+            method,
+            url,
+          });
+
+          app[method](url, handler);
+        });
+
+        delete controller.endpoints;
+      }
+
       Object.keys(controller)
         .forEach((key) => {
           const handler : express.RequestHandler[] = [];
