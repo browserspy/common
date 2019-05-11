@@ -15,6 +15,7 @@ import { sync as glob } from 'glob';
 /* Files */
 
 interface IController {
+  handler?: express.RequestHandler | express.RequestHandler[];
   method: string;
   url: string;
 }
@@ -125,81 +126,107 @@ export default (parent: Express, dir: string, logger: bunyan | undefined = undef
 
   app.set('x-powered-by', null);
 
-  const routes : IController[] = [];
+  // const routes : IController[] = [];
 
-  glob(`${dir}/**/*.*`)
-    .forEach((file) => {
-      const controller = require(file);
+  const routes : IController[] = glob(`${dir}/**/*.*`)
+    .reduce(
+      (result: IController[], file: string) : IController[] => {
+        const controller = require(file);
 
-      const name = file.replace(dir, '')
-        .replace(/^\//, '')
-        .replace(/\..+$/, '')
-        .replace(/\/index$/, '');
+        const name = file.replace(dir, '')
+          .replace(/^\//, '')
+          .replace(/\..+$/, '')
+          .replace(/\/index$/, '');
 
-      const { endpoints } = controller;
+        const { endpoints } = controller;
 
-      if (Array.isArray(endpoints)) {
-        endpoints.forEach((endpoint) => {
-          const handler: express.RequestHandler[] = [];
+        if (Array.isArray(endpoints)) {
+          endpoints.forEach((endpoint) => {
+            const handler: express.RequestHandler[] = [];
 
-          if (controller.before) { middlewareParser(handler, errorHandler(controller.before)); }
-          handler.push(...errorHandler(endpoint.handler));
-          if (controller.after) { middlewareParser(handler, errorHandler(controller.after)); }
-
-          const method = endpoint.method.toLowerCase();
-          const url = `/${name}${endpoint.url}`;
-
-          routes.push({
-            method,
-            url,
-          });
-
-          app[method](url, handler);
-        });
-
-        delete controller.endpoints;
-      }
-
-      Object.keys(controller)
-        .forEach((key) => {
-          const handler : express.RequestHandler[] = [];
-
-          const obj = parseController(
-            app,
-            controller.name || name,
-            controller.prefix,
-            key,
-          );
-
-          if (obj) {
             if (controller.before) { middlewareParser(handler, errorHandler(controller.before)); }
-            handler.push(...errorHandler(controller[key]));
+            handler.push(...errorHandler(endpoint.handler));
             if (controller.after) { middlewareParser(handler, errorHandler(controller.after)); }
 
-            routes.push(obj);
+            const method = endpoint.method.toLowerCase();
+            const url = `/${name}${endpoint.url || ''}`;
 
-            app[obj.method](obj.url, handler);
-          }
-        });
+            routes.push({
+              method,
+              url,
+            });
+
+            app[method](url, handler);
+          });
+
+          delete controller.endpoints;
+        }
+
+        Object.keys(controller)
+          .forEach((key) => {
+            const handler : express.RequestHandler[] = [];
+
+            const obj = parseController(
+              app,
+              controller.name || name,
+              controller.prefix,
+              key,
+            );
+
+            if (obj) {
+              if (controller.before) { middlewareParser(handler, errorHandler(controller.before)); }
+              handler.push(...errorHandler(controller[key]));
+              if (controller.after) { middlewareParser(handler, errorHandler(controller.after)); }
+
+              obj.handler = handler;
+
+              result.push(obj);
+            }
+          });
+
+        return result;
+      },
+      [],
+    )
+    .sort((a: IController, b: IController) => {
+      const hasEndVariable = (str: string) : boolean => /^:/.test(str.split('/').pop()!);
+
+      if (hasEndVariable(a.url)) {
+        return 1;
+      }
+
+      if (hasEndVariable(b.url)) {
+        return -1;
+      }
+
+      return 0;
     });
 
-  /* Add in a ping/pong route - can be overridden if a file specified */
+  /* Add a ping/pong at the end - if it's defined by a route, this is ignored */
   routes.push({
-    method: 'GET',
+    handler: (req: express.Request, res: express.Response) => {
+      res.send('pong');
+    },
+    method: 'get',
     url: '/ping',
   });
-  app.get('/ping', (req: express.Request, res: express.Response) => {
-    res.send('pong');
+
+  /* Apply the routes to express */
+  routes.forEach(({ handler, method, url }) => {
+    app[method](url, handler);
   });
 
   if (!logger) {
     console.log('--- Routes ---');
     routes.forEach((route) => {
-      console.log(`${route.method.toUpperCase()}: ${route.url}`);
+      console.log(`${route.method.toUpperCase()}:${route.url}`);
     });
     console.log('--------------');
   } else {
-    logger.info('Routes', routes);
+    logger.info('Routes', routes.map(({ url, method }) => ({
+      url,
+      method,
+    })));
   }
 
   parent.use(app);

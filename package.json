@@ -8,6 +8,7 @@
     "compile": "npm run -s clean && tsc",
     "lint": "tslint -c tslint.json './{src,test}/**/*.ts'",
     "postversion": "git push --tags && git push",
+    "serve": "nodemon -x ts-node test/stack/app.ts | bunyan",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,6 +18,8 @@
     "@types/express": "^4.16.0",
     "@types/glob": "^5.0.35",
     "@types/node": "^10.5.6",
+    "nodemon": "^1.19.0",
+    "ts-node": "^8.1.0",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.9.2",
     "typescript": "^3.0.1"
