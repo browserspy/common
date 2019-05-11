@@ -16,6 +16,9 @@ script:
 
 sudo: false
 
+before_deploy:
+- cd ./dist/src
+
 deploy:
   provider: npm
   email: simon@simonemms.com
