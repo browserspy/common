@@ -5,7 +5,7 @@
   "main": "./index",
   "scripts": {
     "clean": "rm -Rf ./dist",
-    "compile": "npm run -s clean && tsc",
+    "compile": "npm run -s clean && tsc && cp package*.json ./dist/src",
     "lint": "tslint -c tslint.json './{src,test}/**/*.ts'",
     "postversion": "git push --tags && git push",
     "serve": "nodemon -x ts-node test/stack/app.ts | bunyan",
