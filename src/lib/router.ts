@@ -126,8 +126,6 @@ export default (parent: Express, dir: string, logger: bunyan | undefined = undef
 
   app.set('x-powered-by', null);
 
-  // const routes : IController[] = [];
-
   const routes : IController[] = glob(`${dir}/**/*.*`)
     .reduce(
       (result: IController[], file: string) : IController[] => {
