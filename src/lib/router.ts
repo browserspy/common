@@ -7,12 +7,12 @@
 /* Node modules */
 
 /* Third-party modules */
-import bunyan from 'bunyan';
 import express from 'express';
 import { Express } from 'express-serve-static-core';
 import { sync as glob } from 'glob';
 
 /* Files */
+import { ILogger } from './logger';
 
 interface IController {
   handler?: express.RequestHandler | express.RequestHandler[];
@@ -121,7 +121,7 @@ function parseController(
   };
 }
 
-export default (parent: Express, dir: string, logger: bunyan | undefined = undefined) => {
+export default (parent: Express, dir: string, logger: ILogger | undefined = undefined) => {
   const app : any = express();
 
   app.set('x-powered-by', null);
