@@ -7,11 +7,11 @@
 /* Third-party modules */
 
 /* Files */
-import logger, { bunyan }  from './lib/logger';
+import logger, { pino }  from './lib/logger';
 import router from './lib/router';
 
 export = {
-  bunyan,
+  pino,
   logger,
   router,
 };

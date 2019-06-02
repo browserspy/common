@@ -5,7 +5,7 @@
 /* Node modules */
 
 /* Third-party modules */
-import bunyan from 'bunyan';
+import pino, { LoggerOptions } from 'pino';
 
 /* Files */
 
@@ -25,7 +25,7 @@ const factory = (logger: any, level: string) : ILoggerFn =>
   };
 
 export {
-  bunyan,
+  pino,
 };
 
 export interface IKeyValue<V> {
@@ -45,16 +45,16 @@ export interface ILogger {
   trace: ILoggerFn;
 }
 
-export default (name: string, level: string | number) : ILogger => {
-  if (typeof level === 'string' && !allowedLevels.includes(level)) {
+export default (name: string, level: string, opts: LoggerOptions = {}) : ILogger => {
+  if (!allowedLevels.includes(level)) {
     throw new Error(`Invalid log level: ${level}`);
   }
 
-  const logger = bunyan.createLogger({
-    name,
-    level: <bunyan.LogLevel> level,
-    serializers: bunyan.stdSerializers,
-  });
+  opts.name = name;
+  opts.level = level;
+  if (!opts.serializers) { opts.serializers = pino.stdSerializers; }
+
+  const logger = pino(opts);
 
   return {
     fatal: factory(logger, 'fatal'),
