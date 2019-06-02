@@ -221,10 +221,11 @@ export default (parent: Express, dir: string, logger: bunyan | undefined = undef
     });
     console.log('--------------');
   } else {
-    logger.info('Routes', routes.map(({ url, method }) => ({
+    const loggedRoutes = routes.map(({ url, method }) => ({
       url,
       method,
-    })));
+    }));
+    logger.info(loggedRoutes, 'Routes');
   }
 
   parent.use(app);
