@@ -149,11 +149,6 @@ export default (parent: Express, dir: string, logger: ILogger | undefined = unde
             const method = endpoint.method.toLowerCase();
             const url = `/${name}${endpoint.url || ''}`;
 
-            routes.push({
-              method,
-              url,
-            });
-
             app[method](url, handler);
           });
 
