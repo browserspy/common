@@ -1,6 +1,6 @@
 {
   "name": "@browserspy/common",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "",
   "main": "./index",
   "scripts": {
