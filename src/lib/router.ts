@@ -221,11 +221,10 @@ export default (parent: Express, dir: string, logger: ILogger | undefined = unde
     });
     console.log('--------------');
   } else {
-    const loggedRoutes = routes.map(({ url, method }) => ({
+    logger.info('Routes', routes.map(({ url, method }) => ({
       url,
       method,
-    }));
-    logger.info(loggedRoutes, 'Routes');
+    })));
   }
 
   parent.use(app);

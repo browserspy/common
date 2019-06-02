@@ -33,7 +33,7 @@ export interface IKeyValue<V> {
 }
 
 export interface ILoggerFn {
-  (msg: string, obj: IKeyValue<any>, ...args: any[]) : void;
+  (msg: string, obj?: IKeyValue<any>, ...args: any[]) : void;
 }
 
 export interface ILogger {
