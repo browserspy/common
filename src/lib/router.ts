@@ -122,6 +122,23 @@ function parseController(
 }
 
 export default (parent: Express, dir: string, logger: ILogger | undefined = undefined) => {
+  parent.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const msg = 'New HTTP call received';
+    if (logger) {
+      logger.info(msg, {
+        req,
+      });
+    } else {
+      console.log(msg, {
+        url: req.url,
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+      });
+    }
+    next();
+  });
+
   const app : any = express();
 
   app.set('x-powered-by', null);
