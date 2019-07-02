@@ -12,7 +12,8 @@ import { Express } from 'express-serve-static-core';
 import { sync as glob } from 'glob';
 
 /* Files */
-import { ILogger } from './logger';
+import { generateLogId, ILogger } from './logger';
+import hooks from './hooks';
 
 interface IController {
   handler?: express.RequestHandler | express.RequestHandler[];
@@ -122,22 +123,25 @@ function parseController(
 }
 
 export default (parent: Express, dir: string, logger: ILogger | undefined = undefined) => {
-  parent.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const msg = 'New HTTP call received';
-    if (logger) {
-      logger.info(msg, {
-        req,
-      });
-    } else {
-      console.log(msg, {
-        url: req.url,
-        method: req.method,
-        headers: req.headers,
-        body: req.body,
-      });
-    }
-    next();
-  });
+  parent
+    .use(hooks.middleware)
+    .use(generateLogId(logger))
+    .use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+      const msg = 'New HTTP call received';
+      if (logger) {
+        logger.info(msg, {
+          req,
+        });
+      } else {
+        console.log(msg, {
+          url: req.url,
+          method: req.method,
+          headers: req.headers,
+          body: req.body,
+        });
+      }
+      next();
+    });
 
   const app : any = express();
 
